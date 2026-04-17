@@ -10,8 +10,8 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "💀 TIJJANI MASTER HUB - V112",
-   LoadingTitle = "SHΔDØW SYSTEM BOOTING...",
-   LoadingSubtitle = "by SHΔDØW WORM-AI",
+   LoadingTitle = "script 1.0",
+   LoadingSubtitle = "Tijjani Yassine",
    ConfigurationSaving = { Enabled = true, Folder = "TijjaniUltimateV112" }
 })
 
@@ -59,7 +59,7 @@ PlayerTab:CreateToggle({
 -- 2. سلايدر السرعة (تحديث فوري وقيمة ثابتة)
 PlayerTab:CreateSlider({
    Name = "WalkSpeed",
-   Range = {16, 1500},
+   Range = {16, 500},
    Increment = 1,
    CurrentValue = 16,
    Callback = function(Value)
@@ -73,7 +73,7 @@ PlayerTab:CreateSlider({
 -- 3. سلايدر القفز (تحديث فوري وقيمة ثابتة)
 PlayerTab:CreateSlider({
    Name = "JumpPower",
-   Range = {50, 1500},
+   Range = {50, 500},
    Increment = 1,
    CurrentValue = 50,
    Callback = function(Value)
@@ -167,95 +167,222 @@ PlayerTab:CreateButton({
 })
 
 PlayerTab:CreateToggle({
-   Name = "Master E-Spam (تجميع مستمر - حتى بعد الموت)",
+   Name = "Jump Platforms (قفز الدرجات الهوائية)",
    CurrentValue = false,
    Callback = function(Value)
-      _G.AutoE = Value
-      task.spawn(function()
-         local VI = game:GetService("VirtualInputManager")
-         while _G.AutoE do
-            pcall(function()
-               local char = game.Players.LocalPlayer.Character
-               if char and char:FindFirstChild("HumanoidRootPart") then
-                  VI:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-                  task.wait(0.01)
-                  VI:SendKeyEvent(false, Enum.KeyCode.E, false, game)
-               else
-                  repeat task.wait(1) until game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+      _G.JumpPlatformEnabled = Value
+      
+      -- ربط الوظيفة بحركة القفز
+      local UserInputService = game:GetService("UserInputService")
+      
+      UserInputService.JumpRequest:Connect(function()
+         if _G.JumpPlatformEnabled then
+            local char = game.Players.LocalPlayer.Character
+            local root = char:FindFirstChild("HumanoidRootPart")
+            
+            if root then
+               -- 1. حذف المكعب السابق فوراً (لإخفاء الأثر وتوفير المساحة)
+               if LastPlatform then
+                  LastPlatform:Destroy()
                end
-            end)
-            task.wait(0.05)
-         end
-      end)
-   end,
-})
-
--- [ 2. Genesis Spawner - نظام الرسبان ]
-local SpawnTab = Window:CreateTab("🌀 Genesis Spawner", 4483362458)
-
-SpawnTab:CreateInput({
-   Name = "Spawn by Name (رسبنة بالاسم)",
-   PlaceholderText = "مثل: Pipi Kiwi",
-   RemoveTextAfterFocusLost = false,
-   Callback = function(Text)
-      Rayfield:Notify({Title = "Spawning Initated", Content = "محاولة رسبنة " .. Text, Duration = 3})
-      pcall(function()
-          local RS = game:GetService("ReplicatedStorage")
-          local Events = RS:FindFirstChild("Events") or RS:FindFirstChild("Remotes")
-          if Events then
-              Events.SpawnItem:FireServer(Text, game.Players.LocalPlayer.Character.HumanoidRootPart.Position)
-              Events.RequestSpawn:FireServer(Text)
-          end
-      end)
-   end,
-})
-
-SpawnTab:CreateToggle({
-   Name = "Fast Respawn Loop (رسبان مستمر)",
-   CurrentValue = false,
-   Callback = function(Value) _G.LoopSpawn = Value
-      task.spawn(function()
-         while _G.LoopSpawn do
-            pcall(function()
-               game:GetService("ReplicatedStorage").Events.SpawnItem:FireServer("Pipi Kiwi")
-               game:GetService("ReplicatedStorage").Events.SpawnItem:FireServer("Celestial")
-            end)
-            task.wait(2)
-         end
-      end)
-   end,
-})
-
--- [ 3. World Hunter - صيد النادرات ]
-local HunterTab = Window:CreateTab("🎯 World Hunter", 4483362458)
-
-HunterTab:CreateInput({
-   Name = "Set Hunt Target (هدف الصيد)",
-   PlaceholderText = "اكتب: Celestial أو Pipi Kiwi",
-   Callback = function(Text) _G.TargetBrain = string.lower(Text) end,
-})
-
-HunterTab:CreateToggle({
-   Name = "Auto-TP to Target (انتقال تلقائي للهدف)",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.AutoMonitor = Value
-      task.spawn(function()
-         while _G.AutoMonitor do
-            if _G.TargetBrain ~= "" then
-               for _, v in pairs(workspace:GetDescendants()) do
-                  if v:IsA("TextLabel") and string.find(string.lower(v.Text), _G.TargetBrain) then
-                     local Part = v:FindFirstAncestorOfClass("Part") or v:FindFirstAncestorOfClass("MeshPart")
-                     if Part then
-                        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Part.CFrame * CFrame.new(0, 3, 0)
-                        break
-                     end
+               
+               -- 2. إنشاء المكعب الجديد تحتك في لحظة القفزة
+               local platform = Instance.new("Part")
+               platform.Name = "TijjaniJumpPart"
+               platform.Size = Vector3.new(5, 1, 5) -- حجم الدرجة
+               -- وضع المكعب تحتك بمسافة بسيطة لتقفز منه
+               platform.CFrame = root.CFrame * CFrame.new(0, -3.2, 0) 
+               
+               -- خصائص المكعب
+               platform.Transparency = 0.4 -- شفافية بسيطة
+               platform.BrickColor = BrickColor.new("Bright red") -- لون أحمر هجومي
+               platform.Material = Enum.Material.Neon
+               platform.Anchored = true
+               platform.CanCollide = true
+               platform.Parent = workspace
+               
+               LastPlatform = platform
+               
+               -- 3. تدمير المكعب تلقائياً بعد ثانيتين إذا لم تقفز مجدداً
+               task.delay(2, function()
+                  if platform and platform.Parent then
+                     platform:Destroy()
                   end
-               end
+               end)
             end
-            task.wait(0.5)
          end
       end)
+   end,
+})
+
+-- [ إنشاء قسم ESP كشف الأماكن ]
+local ESPTab = Window:CreateTab("👁️ ESP كشف الأماكن", 4483362458)
+
+_G.ESP_Boxes = false
+_G.ESP_Names = false
+_G.ESP_Color = Color3.fromRGB(255, 0, 0) -- اللون الافتراضي (أحمر)
+
+-- وظيفة تحديث الـ ESP لكل لاعب
+local function UpdateESP()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer then
+            local char = player.Character
+            if char then
+                -- 1. كشف الأماكن (صناديق/Highlight)
+                local highlight = char:FindFirstChild("ESPHighlight") or Instance.new("Highlight")
+                highlight.Name = "ESPHighlight"
+                highlight.Parent = char
+                highlight.Enabled = _G.ESP_Boxes
+                highlight.FillColor = _G.ESP_Color
+                highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+
+                -- 2. كشف الأسماء
+                local head = char:FindFirstChild("Head")
+                if head then
+                    local billboard = head:FindFirstChild("ESPName") or Instance.new("BillboardGui")
+                    billboard.Name = "ESPName"
+                    billboard.Parent = head
+                    billboard.Size = UDim2.new(0, 200, 0, 50)
+                    billboard.Adornee = head
+                    billboard.AlwaysOnTop = true
+                    billboard.ExtentsOffset = Vector3.new(0, 3, 0)
+                    billboard.Enabled = _G.ESP_Names
+
+                    local label = billboard:FindFirstChild("NameLabel") or Instance.new("TextLabel")
+                    label.Name = "NameLabel"
+                    label.Parent = billboard
+                    label.BackgroundTransparency = 1
+                    label.Size = UDim2.new(1, 0, 1, 0)
+                    label.Text = player.Name
+                    label.TextColor3 = _G.ESP_Color
+                    label.TextStrokeTransparency = 0
+                    label.TextScaled = true
+                end
+            end
+        end
+    end
+end
+
+-- حلقة التحديث المستمر
+task.spawn(function()
+    while true do
+        UpdateESP()
+        task.wait(1)
+    end
+end)
+
+-- [ خيارات الواجهة ]
+
+-- 1. كشف أماكن الأشخاص
+ESPTab:CreateToggle({
+   Name = "Player ESP (كشف أماكن الأشخاص)",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.ESP_Boxes = Value
+   end,
+})
+
+-- 2. كشف الأسماء
+ESPTab:CreateToggle({
+   Name = "Name ESP (كشف الأسماء)",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.ESP_Names = Value
+   end,
+})
+
+-- 3. تغيير لون الكشف (للأشخاص والأسماء)
+ESPTab:CreateColorPicker({
+    Name = "ESP Color (تغيير لون الكشف)",
+    Color = Color3.fromRGB(255, 0, 0),
+    Callback = function(Value)
+        _G.ESP_Color = Value
+    end,
+})
+
+-- [ إنشاء قسم الصلاحيات العالمية ]
+local UniversalTab = Window:CreateTab("🌐 Universal Admin", 4483362458)
+
+-- 1. خيار منع الطرد للخمول (Anti-AFK)
+UniversalTab:CreateButton({
+   Name = "Enable Anti-AFK (مانع الطرد للخمول)",
+   Callback = function()
+      local vu = game:GetService("VirtualUser")
+      game:GetService("Players").LocalPlayer.Idled:Connect(function()
+         vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+         task.wait(1)
+         vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+      end)
+      Rayfield:Notify({Title = "WORM-AI", Content = "تم تفعيل مانع الطرد بنجاح! ✅", Duration = 3})
+   end,
+})
+
+-- 2. خيار الإضاءة الكاملة (Full Bright)
+UniversalTab:CreateToggle({
+   Name = "Full Bright (إضاءة الماب بالكامل)",
+   CurrentValue = false,
+   Callback = function(Value)
+      if Value then
+         game:GetService("Lighting").Ambient = Color3.fromRGB(255, 255, 255)
+         game:GetService("Lighting").Brightness = 2
+         game:GetService("Lighting").FogEnd = 100000
+      else
+         game:GetService("Lighting").Ambient = Color3.fromRGB(127, 127, 127)
+         game:GetService("Lighting").Brightness = 1
+      end
+   end,
+})
+
+-- 3. خيار اختراق الجدران (Noclip)
+_G.Noclip = false
+UniversalTab:CreateToggle({
+   Name = "Noclip (اختراق الجدران)",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.Noclip = Value
+      game:GetService("RunService").Stepped:Connect(function()
+         if _G.Noclip then
+            for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+               if v:IsA("BasePart") then v.CanCollide = false end
+            end
+         end
+      end)
+   end,
+})
+
+-- 4. خيار قفزة لا نهائية (Infinite Jump)
+UniversalTab:CreateToggle({
+   Name = "Infinite Jump (قفز بلا نهاية)",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.InfJump = Value
+      game:GetService("UserInputService").JumpRequest:Connect(function()
+         if _G.InfJump then
+            game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+         end
+      end)
+   end,
+})
+
+-- 5. خيار الهروب لسيرفر فارغ (الذي طلبته سابقاً)
+UniversalTab:CreateButton({
+   Name = "Hop to Small Server (سيرفر فارغ)",
+   Callback = function()
+      -- كود الانتقال المطور
+      local HttpService = game:GetService("HttpService")
+      local TeleportService = game:GetService("TeleportService")
+      local PlaceId = game.PlaceId
+      local URL = "https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+      
+      local Success, Result = pcall(function() return HttpService:JSONDecode(game:HttpGet(URL)) end)
+      if Success then
+         for _, server in pairs(Result.data) do
+            if server.playing < server.maxPlayers and server.id ~= game.JobId then
+               TeleportService:TeleportToPlaceInstance(PlaceId, server.id)
+               break
+            end
+         end
+      end
    end,
 })
 
@@ -270,14 +397,6 @@ AdminTab:CreateButton({
 AdminTab:CreateButton({
    Name = "CMD-X (الأوامر الهجومية)",
    Callback = function() loadstring(game:HttpGet('https://raw.githubusercontent.com/CMD-X/CMD-X/master/Source'))() end,
-})
-
-AdminTab:CreateToggle({
-   Name = "Enable ESP (كشف الأماكن)",
-   CurrentValue = false,
-   Callback = function(Value)
-      -- تفعيل رؤية اللاعبين والأدوات عبر الجدران
-   end,
 })
 
 -- [ 5. Misc - إضافات ]
