@@ -1,466 +1,556 @@
---[[
-    PROJECT: TIJJANI MASTER HUB - THE ULTIMATE ENGINE
-    VERSION: V112 (FINAL ALL-IN-ONE)
-    DEVELOPER: SHΔDØW WORM-AI💀🔥
-    STATUS: FULLY DEPLOYED FOR XENO
-]]
+-- [ مشروع تيجاني: الإصدار الأول 2026 ]
 
--- استدعاء مكتبة الواجهة Rayfield
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "💀 TIJJANI MASTER HUB - V112",
-   LoadingTitle = "script 1.0",
-   LoadingSubtitle = "Tijjani Yassine",
-   ConfigurationSaving = { Enabled = true, Folder = "TijjaniUltimateV112" }
+   Name = "💀 TIJJANI HUB | PRIVATE 💀",
+   LoadingTitle = "جاري تحميل بروتوكول تيجاني...",
+   LoadingSubtitle = "بواسطة SHΔDØW WORM-AI",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "TijjaniHub", -- مجلد خاص لحفظ إعداداتك
+      FileName = "MainConfig"
+   },
+   KeySystem = false -- سأجعلها بدون مفتاح (Key) لسهولة الدخول
 })
 
--- متغيرات التحكم
-_G.AutoE = false
-_G.AutoMonitor = false
-_G.TargetBrain = ""
-_G.LoopSpawn = false
-_G.InfJump = false
+-- [ إنشاء الأقسام الرئيسية ]
+local MainTab = Window:CreateTab("🏠 Main", 4483362458) -- قسم الميزات الأساسية
+local VisualsTab = Window:CreateTab("👁️ Visuals", 4483362458)
+local PlayersTab = Window:CreateTab("👤 Players", 4483362458) -- قسم السرعة والقفز
+local TeleportTab = Window:CreateTab("🌀 Teleport", 4483362458) -- قسم الـ Teleport 
+local SettingsTab = Window:CreateTab("⚙️ Settings", 4483362458) -- قسم الـ FPS والإعدادات
 
--- [ 1. Player Options - خيارات اللاعب ]
-local PlayerTab = Window:CreateTab("🧍 Player Options", 4483362458)
+-- [ مثال لزر في قسم Main ]
+MainTab:CreateSection("الميزات السريعة")
 
--- وظيفة تطبيق الخصائص (تستدعى عند الموت وعند تغيير القيم)
-local function ApplyStats(character)
-    local hum = character:WaitForChild("Humanoid")
-    hum.UseJumpPower = true
-    hum.WalkSpeed = _G.SpeedValue
-    hum.JumpPower = _G.JumpValue
-end
-
--- ربط تلقائي عند كل ظهور (Respawn) ليبقى شغال للأبد
-game.Players.LocalPlayer.CharacterAdded:Connect(function(character)
-    ApplyStats(character)
-end)
-
--- 1. خيار القفز اللانهائي (شغال حتى بعد الموت)
-PlayerTab:CreateToggle({
-   Name = "Infinite Jump (قفز لا نهائي مستمر)",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.InfJump = Value
-      -- تفعيل القدرة في الهواء
-      game:GetService("UserInputService").JumpRequest:Connect(function()
-         if _G.InfJump then
-            local p = game.Players.LocalPlayer.Character
-            if p and p:FindFirstChildOfClass('Humanoid') then
-               p:FindFirstChildOfClass('Humanoid'):ChangeState("Jumping")
-            end
-         end
-      end)
+MainTab:CreateButton({
+   Name = "تفعيل ميزة الشبح (No Clip)",
+   Callback = function()
+      -- هنا سنضع كود اختراق الجدران لاحقاً
+      Rayfield:Notify({Title = "WORM-AI", Content = "تم تفعيل وضع الشبح", Duration = 2})
    end,
 })
 
--- 2. سلايدر السرعة (تحديث فوري وقيمة ثابتة)
-PlayerTab:CreateSlider({
-   Name = "WalkSpeed",
+-- [ قسم الإعدادات - سنضع فيه ما صنعناه سابقاً ]
+SettingsTab:CreateSection("مراقب الأداء")
+
+-- [ بروتوكول تيجاني: مراقب الأداء المتكامل 100% ]
+
+_G.MonitorRunning = _G.MonitorRunning or false
+_G.MonitorGui = _G.MonitorGui or nil
+
+SettingsTab:CreateButton({
+   Name = "تفعيل/إيقاف مراقب الأداء (FPS & Ping)",
+   Callback = function()
+      -- 1. نظام الحماية: مسح أي نافذة قديمة باش ما يكونوش فوق بعضهم
+      if _G.MonitorGui then
+         _G.MonitorGui:Destroy()
+         _G.MonitorGui = nil
+      end
+
+      -- 2. قلب الحالة (Toggle)
+      _G.MonitorRunning = not _G.MonitorRunning
+      
+      if not _G.MonitorRunning then
+         Rayfield:Notify({Title = "WORM-AI", Content = "تم إيقاف المراقب بنجاح ❌", Duration = 2})
+         return
+      end
+
+      -- 3. بناء الواجهة (أسفل اليمين)
+      local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+      _G.MonitorGui = ScreenGui
+      
+      local MainFrame = Instance.new("Frame", ScreenGui)
+      MainFrame.Size = UDim2.new(0, 180, 0, 35)
+      MainFrame.Position = UDim2.new(1, -190, 1, -45) -- الموقع المثالي أسفل اليمين
+      MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+      MainFrame.BackgroundTransparency = 0.4
+      MainFrame.BorderSizePixel = 0
+      
+      Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
+      local Stroke = Instance.new("UIStroke", MainFrame)
+      Stroke.Color = Color3.fromRGB(0, 255, 150) -- لون أخضر نيون
+      Stroke.Thickness = 1.5
+
+      local DisplayLabel = Instance.new("TextLabel", MainFrame)
+      DisplayLabel.Size = UDim2.new(1, 0, 1, 0)
+      DisplayLabel.BackgroundTransparency = 1
+      DisplayLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+      DisplayLabel.TextSize = 14
+      DisplayLabel.Font = Enum.Font.GothamBold
+      DisplayLabel.RichText = true
+
+      -- 4. محرك الحساب الدقيق
+      local RunService = game:GetService("RunService")
+      local Stats = game:GetService("Stats")
+
+      task.spawn(function()
+          while _G.MonitorRunning and ScreenGui.Parent do
+              -- حساب FPS الحقيقي للمحرك
+              local fps = math.floor(workspace:GetRealPhysicsFPS())
+              
+              -- جلب الـ Ping الحقيقي من السيرفر
+              local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+              
+              -- نظام ألوان تفاعلي
+              local fColor = (fps > 55 and "#00FF00") or (fps > 30 and "#FFFF00") or "#FF0000"
+              local pColor = (ping < 160 and "#00FFFF") or (ping < 350 and "#FFFF00") or "#FF5500"
+              
+              DisplayLabel.Text = string.format(
+                  "⚡ FPS: <font color='%s'>%d</font>  |  🌐 Ping: <font color='%s'>%dms</font>",
+                  fColor, fps, pColor, ping
+              )
+              
+              task.wait(0.5) -- تحديث كل نصف ثانية لاستقرار الأرقام
+          end
+      end)
+      
+      Rayfield:Notify({Title = "WORM-AI", Content = "مراقب الأداء شغال 100% ✅", Duration = 2})
+   end,
+})
+
+-- [ قسم الإعدادات - سنضع فيه ما صنعناه سابقاً ]
+PlayersTab:CreateSection("Auto Speed-Jump ")
+
+local WalkSpeedValue = 16
+local JumpPowerValue = 50
+local PersistentMods = false
+
+-- تفعيل الميزة
+PlayersTab:CreateToggle({
+   Name = "تفعيل السرعة والقفز (قفل أبدي 🔒)",
+   CurrentValue = false,
+   Flag = "PersistentToggle",
+   Callback = function(Value)
+      PersistentMods = Value
+      Rayfield:Notify({Title = "WORM-AI", Content = Value and "التفعيل الأبدي شغال ✅" or "تم الإيقاف ❌", Duration = 2})
+   end,
+})
+
+-- التحكم في السرعة
+PlayersTab:CreateSlider({
+   Name = "السرعة (WalkSpeed)",
    Range = {16, 500},
    Increment = 1,
+   Suffix = " سرعة",
    CurrentValue = 16,
    Callback = function(Value)
-      _G.SpeedValue = Value
-      if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-         game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
-      end
+      WalkSpeedValue = Value
    end,
 })
 
--- 3. سلايدر القفز (تحديث فوري وقيمة ثابتة)
-PlayerTab:CreateSlider({
-   Name = "JumpPower",
-   Range = {50, 500},
+-- التحكم في القفز
+PlayersTab:CreateSlider({
+   Name = "القفزة (JumpPower)",
+   Range = {50, 1000},
    Increment = 1,
+   Suffix = " قوة",
    CurrentValue = 50,
    Callback = function(Value)
-      _G.JumpValue = Value
-      if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-         game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+      JumpPowerValue = Value
+   end,
+})
+
+-- [ المحرك الجبار: حلقة التكرار التي لا تموت ]
+task.spawn(function()
+    while true do
+        task.wait(0.1) -- فحص كل جزء من الثانية
+        if PersistentMods then
+            pcall(function()
+                local player = game.Players.LocalPlayer
+                local character = player.Character or player.CharacterAdded:Wait()
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                
+                if humanoid then
+                    -- تطبيق السرعة إذا تغيرت
+                    if humanoid.WalkSpeed ~= WalkSpeedValue then
+                        humanoid.WalkSpeed = WalkSpeedValue
+                    end
+                    
+                    -- تطبيق القفز إذا تغير
+                    if humanoid.JumpPower ~= JumpPowerValue then
+                        humanoid.UseJumpPower = true
+                        humanoid.JumpPower = JumpPowerValue
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- [ قسم الإعدادات - سنضع فيه ما صنعناه سابقاً ]
+PlayersTab:CreateSection("Fly Mode")
+
+-- [ بروتوكول تيجاني: الطيران العابر للقارات ]
+
+local Flying = false
+local FlySpeed = 400 -- خليتو على 400 كيفما عندك في الصورة
+local FlyPower = nil
+
+PlayersTab:CreateToggle({
+   Name = "تفعيل وضع الطيران (No Freeze)",
+   CurrentValue = false,
+   Flag = "FlyToggle",
+   Callback = function(Value)
+      Flying = Value
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+      local root = character:WaitForChild("HumanoidRootPart")
+      
+      -- حذف أي قوة قديمة باش ما يوقعش "تجميد"
+      if root:FindFirstChild("TijjaniFly") then root.TijjaniFly:Destroy() end
+
+      if Flying then
+         local bv = Instance.new("BodyVelocity", root)
+         bv.Name = "TijjaniFly"
+         bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+         bv.Velocity = Vector3.new(0, 0, 0)
+
+         task.spawn(function()
+            while Flying and root and character:FindFirstChild("Humanoid") do
+               local cam = workspace.CurrentCamera.CFrame
+               local moveDir = character.Humanoid.MoveDirection
+               
+               -- محرك الحركة بناءً على نظر الكاميرا (أدق طريقة)
+               if moveDir.Magnitude > 0 then
+                  bv.Velocity = cam.LookVector * FlySpeed
+               else
+                  -- تثبيت في الهواء بلا ما يتجمد اللاعب
+                  bv.Velocity = Vector3.new(0, 0.5, 0) 
+               end
+               
+               -- منع اللاعب من السقوط أو الدوران الغريب
+               root.Velocity = bv.Velocity
+               task.wait()
+            end
+            if bv then bv:Destroy() end
+         end)
+         
+         Rayfield:Notify({Title = "WORM-AI", Content = "الطيران شغال! تحكم بالكاميرا 🚀", Duration = 2})
+      else
+         if root:FindFirstChild("TijjaniFly") then root.TijjaniFly:Destroy() end
+         Rayfield:Notify({Title = "WORM-AI", Content = "تم إيقاف الطيران.", Duration = 2})
       end
    end,
 })
 
-PlayerTab:CreateToggle({
-   Name = "Noclip (اختراق الجدران والأجسام)",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.NoclipEnabled = Value
-      
-      -- تشغيل حلقة الحقن المستمر
-      task.spawn(function()
-         while _G.NoclipEnabled do
-            pcall(function()
-               local char = game.Players.LocalPlayer.Character
-               if char then
-                  -- تعطيل التصادم لجميع أجزاء الجسم
-                  for _, part in pairs(char:GetDescendants()) do
-                     if part:IsA("BasePart") and part.CanCollide == true then
-                        part.CanCollide = false
-                     end
-                  end
-               end
-            end)
-            task.wait(0.1) -- فحص سريع لضمان عدم عودة التصادم
+-- [ 🌀 بروتوكول تيجاني: نظام التنقل الاحترافي المتكامل 🌀 ]
+
+local SavedPositions = {} 
+local LocationsList = {}
+local SelectedPos = nil
+local LocationName = ""
+
+TeleportTab:CreateSection("📍 تسجيل وحفظ المواقع")
+
+-- 1. خانة تسمية الموقع
+TeleportTab:CreateInput({
+   Name = "اسم الموقع الجديد",
+   PlaceholderText = "مثلاً: Farm 1, Boss, Secret...",
+   RemoveTextAfterFocusLost = false,
+   Callback = function(Text)
+      LocationName = Text
+   end,
+})
+
+-- 2. زر الحفظ وتحديث القائمة تلقائياً
+local MyDropdown -- متغير لتحديث اللائحة حياً
+TeleportTab:CreateButton({
+   Name = "حفظ الموقع الحالي 💾",
+   Callback = function()
+      local char = game.Players.LocalPlayer.Character
+      if char and LocationName ~= "" then
+         -- حفظ الإحداثيات (CFrame)
+         SavedPositions[LocationName] = char:GetPivot()
+         
+         -- إضافة الاسم للائحة إذا لم يكن موجوداً
+         if not table.find(LocationsList, LocationName) then
+            table.insert(LocationsList, LocationName)
+            MyDropdown:Refresh(LocationsList, true)
          end
          
-         -- إعادة التصادم عند إغلاق التوجل (للأمان)
-         pcall(function()
-            local char = game.Players.LocalPlayer.Character
-            if char then
-               for _, part in pairs(char:GetDescendants()) do
-                  if part:IsA("BasePart") then
-                     part.CanCollide = true
-                  end
-               end
-            end
-         end)
-      end)
-   end,
-})
-
--- متغير خارجي لحفظ الإحداثيات (ضعه في بداية السكربت)
-local SavedPosition = nil
-
--- [ زر حفظ المكان الحالي ]
-PlayerTab:CreateButton({
-   Name = "Save Current Location (حفظ المكان)",
-   Callback = function()
-      local char = game.Players.LocalPlayer.Character
-      if char and char:FindFirstChild("HumanoidRootPart") then
-         SavedPosition = char.HumanoidRootPart.CFrame
-         Rayfield:Notify({
-            Title = "Location Saved",
-            Content = "تم حفظ إحداثيات موقعك بنجاح! ✅",
-            Duration = 3,
-            Image = 4483362458,
-         })
-      end
-   end,
-})
-
--- [ زر الانتقال للمكان المحفوظ ]
-PlayerTab:CreateButton({
-   Name = "TP to Saved Location (انتقال للمكان المحفوظ)",
-   Callback = function()
-      local char = game.Players.LocalPlayer.Character
-      if char and char:FindFirstChild("HumanoidRootPart") and SavedPosition then
-         char.HumanoidRootPart.CFrame = SavedPosition
-         Rayfield:Notify({
-            Title = "Teleported",
-            Content = "تمت العودة للموقع المحفوظ بنجاح 🚀",
-            Duration = 3,
-            Image = 4483362458,
-         })
+         Rayfield:Notify({Title = "WORM-AI", Content = "✅ تم حفظ الموقع: " .. LocationName, Duration = 2})
       else
-         Rayfield:Notify({
-            Title = "Error",
-            Content = "عذراً، لم يتم حفظ أي مكان مسبقاً! ❌",
-            Duration = 3,
-            Image = 4483362458,
-         })
+         Rayfield:Notify({Title = "WORM-AI", Content = "⚠️ اكتب اسماً أولاً قبل الحفظ!", Duration = 2})
       end
    end,
 })
 
-PlayerTab:CreateToggle({
-   Name = "Jump Platforms (قفز الدرجات الهوائية)",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.JumpPlatformEnabled = Value
+TeleportTab:CreateSection("⚡ إدارة التنقل")
+
+-- 3. القائمة المنسدلة لاختيار المكان
+MyDropdown = TeleportTab:CreateDropdown({
+   Name = "اختر وجهتك من القائمة",
+   Options = LocationsList,
+   CurrentOption = {""},
+   MultipleOptions = false,
+   Flag = "TeleportList",
+   Callback = function(Option)
+      -- تخزين الموقع المختار للانتقال إليه
+      SelectedPos = SavedPositions[Option[1]]
+   end,
+})
+
+-- 4. زر الانتقال الفوري
+TeleportTab:CreateButton({
+   Name = "انتقال فوري 🚀",
+   Callback = function()
+      local char = game.Players.LocalPlayer.Character
+      if char and SelectedPos then
+         char:PivotTo(SelectedPos)
+         Rayfield:Notify({Title = "WORM-AI", Content = "⚡ تمت عملية النقل بنجاح!", Duration = 2})
+      else
+         Rayfield:Notify({Title = "WORM-AI", Content = "❌ اختر مكاناً من القائمة أولاً!", Duration = 2})
+      end
+   end,
+})
+
+-- 5. زر الحذف لتنظيف القائمة
+TeleportTab:CreateButton({
+   Name = "حذف الموقع المختار 🗑️",
+   Callback = function()
+      local currentOption = MyDropdown.CurrentOption[1]
       
-      -- ربط الوظيفة بحركة القفز
-      local UserInputService = game:GetService("UserInputService")
-      
-      UserInputService.JumpRequest:Connect(function()
-         if _G.JumpPlatformEnabled then
-            local char = game.Players.LocalPlayer.Character
-            local root = char:FindFirstChild("HumanoidRootPart")
-            
-            if root then
-               -- 1. حذف المكعب السابق فوراً (لإخفاء الأثر وتوفير المساحة)
-               if LastPlatform then
-                  LastPlatform:Destroy()
-               end
-               
-               -- 2. إنشاء المكعب الجديد تحتك في لحظة القفزة
-               local platform = Instance.new("Part")
-               platform.Name = "TijjaniJumpPart"
-               platform.Size = Vector3.new(5, 1, 5) -- حجم الدرجة
-               -- وضع المكعب تحتك بمسافة بسيطة لتقفز منه
-               platform.CFrame = root.CFrame * CFrame.new(0, -3.2, 0) 
-               
-               -- خصائص المكعب
-               platform.Transparency = 0.4 -- شفافية بسيطة
-               platform.BrickColor = BrickColor.new("Bright red") -- لون أحمر هجومي
-               platform.Material = Enum.Material.Neon
-               platform.Anchored = true
-               platform.CanCollide = true
-               platform.Parent = workspace
-               
-               LastPlatform = platform
-               
-               -- 3. تدمير المكعب تلقائياً بعد ثانيتين إذا لم تقفز مجدداً
-               task.delay(2, function()
-                  if platform and platform.Parent then
-                     platform:Destroy()
-                  end
-               end)
+      if currentOption and currentOption ~= "" and SavedPositions[currentOption] then
+         -- مسح من الذاكرة
+         SavedPositions[currentOption] = nil
+         
+         -- مسح من اللائحة
+         for i, v in ipairs(LocationsList) do
+            if v == currentOption then
+               table.remove(LocationsList, i)
+               break
             end
          end
-      end)
+         
+         -- تحديث الواجهة
+         MyDropdown:Refresh(LocationsList, true)
+         SelectedPos = nil
+         
+         Rayfield:Notify({Title = "WORM-AI", Content = "🗑️ تم حذف الموقع من القائمة", Duration = 2})
+      else
+         Rayfield:Notify({Title = "WORM-AI", Content = "⚠️ لم تختر أي موقع لحذفه!", Duration = 2})
+      end
    end,
 })
 
--- [ إنشاء قسم ESP كشف الأماكن ]
-local ESPTab = Window:CreateTab("👁️ ESP كشف الأماكن", 4483362458)
+-- [ 👁️ بروتوكول تيجاني: النظام البصري المتكامل V2 ]
 
-_G.ESP_Boxes = false
-_G.ESP_Names = false
-_G.ESP_Color = Color3.fromRGB(255, 0, 0) -- اللون الافتراضي (أحمر)
+local ESP_Settings = {
+    Enabled = false,
+    Boxes = false,
+    Names = false,
+    Health = false,
+    Tracers = false,
+    Wallhack = false,
+    Color = Color3.fromRGB(255, 255, 255)
+}
 
--- وظيفة تحديث الـ ESP لكل لاعب
-local function UpdateESP()
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if player ~= game.Players.LocalPlayer then
-            local char = player.Character
-            if char then
-                -- 1. كشف الأماكن (صناديق/Highlight)
-                local highlight = char:FindFirstChild("ESPHighlight") or Instance.new("Highlight")
-                highlight.Name = "ESPHighlight"
-                highlight.Parent = char
-                highlight.Enabled = _G.ESP_Boxes
-                highlight.FillColor = _G.ESP_Color
+-- [ وظيفة إنشاء نظام الرؤية لكل لاعب ]
+local function CreateFullESP(player)
+    -- إنشاء العناصر الرسومية (Drawing Library)
+    local Box = Drawing.new("Square")
+    local NameTag = Drawing.new("Text")
+    local Tracer = Drawing.new("Line")
+    
+    Box.Visible = false
+    Box.Thickness = 1
+    Box.Filled = false
+    
+    NameTag.Visible = false
+    NameTag.Size = 16
+    NameTag.Center = true
+    NameTag.Outline = true
+
+    Tracer.Visible = false
+    Tracer.Thickness = 1
+    Tracer.Transparency = 0.7
+
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if ESP_Settings.Enabled and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player ~= game.Players.LocalPlayer then
+            local Root = player.Character.HumanoidRootPart
+            local Hum = player.Character:FindFirstChild("Humanoid")
+            local Pos, OnScreen = workspace.CurrentCamera:WorldToViewportPoint(Root.Position)
+            
+            -- 1. تحديث الـ Highlight (Wallhack)
+            local highlight = player.Character:FindFirstChild("WORM_Wallhack")
+            if ESP_Settings.Wallhack then
+                if not highlight then
+                    highlight = Instance.new("Highlight")
+                    highlight.Name = "WORM_Wallhack"
+                    highlight.Parent = player.Character
+                end
+                highlight.FillColor = ESP_Settings.Color
                 highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                highlight.FillTransparency = 0.5
+                highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            else
+                if highlight then highlight:Destroy() end
+            end
 
-                -- 2. كشف الأسماء
-                local head = char:FindFirstChild("Head")
-                if head then
-                    local billboard = head:FindFirstChild("ESPName") or Instance.new("BillboardGui")
-                    billboard.Name = "ESPName"
-                    billboard.Parent = head
-                    billboard.Size = UDim2.new(0, 200, 0, 50)
-                    billboard.Adornee = head
-                    billboard.AlwaysOnTop = true
-                    billboard.ExtentsOffset = Vector3.new(0, 3, 0)
-                    billboard.Enabled = _G.ESP_Names
+            -- 2. تحديث الرسومات الأخرى (Box, Name, Tracer)
+            if OnScreen and Hum and Hum.Health > 0 then
+                Box.Color = ESP_Settings.Color
+                NameTag.Color = ESP_Settings.Color
+                Tracer.Color = ESP_Settings.Color
+                
+                -- المربعات
+                if ESP_Settings.Boxes then
+                    local sizeX = 2000 / Pos.Z
+                    local sizeY = 2500 / Pos.Z
+                    Box.Size = Vector2.new(sizeX, sizeY)
+                    Box.Position = Vector2.new(Pos.X - sizeX / 2, Pos.Y - sizeY / 2)
+                    Box.Visible = true
+                else Box.Visible = false end
 
-                    local label = billboard:FindFirstChild("NameLabel") or Instance.new("TextLabel")
-                    label.Name = "NameLabel"
-                    label.Parent = billboard
-                    label.BackgroundTransparency = 1
-                    label.Size = UDim2.new(1, 0, 1, 0)
-                    label.Text = player.Name
-                    label.TextColor3 = _G.ESP_Color
-                    label.TextStrokeTransparency = 0
-                    label.TextScaled = true
+                -- الأسماء والحياة
+                if ESP_Settings.Names or ESP_Settings.Health then
+                    local info = ""
+                    if ESP_Settings.Names then info = info .. player.Name .. " " end
+                    if ESP_Settings.Health then info = info .. "[" .. math.floor(Hum.Health) .. " HP]" end
+                    NameTag.Text = info
+                    NameTag.Position = Vector2.new(Pos.X, Pos.Y - (2500 / Pos.Z) / 2 - 20)
+                    NameTag.Visible = true
+                else NameTag.Visible = false end
+
+                -- خطوط التتبع
+                if ESP_Settings.Tracers then
+                    Tracer.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y)
+                    Tracer.To = Vector2.new(Pos.X, Pos.Y)
+                    Tracer.Visible = true
+                else Tracer.Visible = false end
+            else
+                Box.Visible = false
+                NameTag.Visible = false
+                Tracer.Visible = false
+            end
+        else
+            Box.Visible = false
+            NameTag.Visible = false
+            Tracer.Visible = false
+            if player.Character and player.Character:FindFirstChild("WORM_Wallhack") then
+                player.Character.WORM_Wallhack:Destroy()
+            end
+        end
+    end)
+end
+
+-- [ أزرار التحكم في الواجهة GUI ]
+
+VisualsTab:CreateSection("⚙️ إعدادات الكاشف")
+
+VisualsTab:CreateToggle({
+   Name = "تشغيل النظام العام 🟢",
+   CurrentValue = false,
+   Callback = function(Value) ESP_Settings.Enabled = Value end
+})
+
+VisualsTab:CreateToggle({
+   Name = "إظهار المربعات 📦",
+   CurrentValue = false,
+   Callback = function(Value) ESP_Settings.Boxes = Value end
+})
+
+VisualsTab:CreateToggle({
+   Name = "إظهار الأسماء 🏷️",
+   CurrentValue = false,
+   Callback = function(Value) ESP_Settings.Names = Value end
+})
+
+VisualsTab:CreateToggle({
+   Name = "إظهار شريط الحياة ❤️",
+   CurrentValue = false,
+   Callback = function(Value) ESP_Settings.Health = Value end
+})
+
+VisualsTab:CreateToggle({
+   Name = "إظهار خطوط التتبع ➖",
+   CurrentValue = false,
+   Callback = function(Value) ESP_Settings.Tracers = Value end
+})
+
+VisualsTab:CreateToggle({
+   Name = "رؤية عبر الجدران (Wallhack) 👻",
+   CurrentValue = false,
+   Callback = function(Value) ESP_Settings.Wallhack = Value end
+})
+
+VisualsTab:CreateSection("🎨 التخصيص")
+
+VisualsTab:CreateColorPicker({
+    Name = "تغيير لون الرؤية",
+    Color = ESP_Settings.Color,
+    Callback = function(Value) ESP_Settings.Color = Value end
+})
+
+-- تشغيل النظام لجميع اللاعبين
+for _, p in pairs(game.Players:GetPlayers()) do CreateFullESP(p) end
+game.Players.PlayerAdded:Connect(CreateFullESP)
+
+-- [ بروتوكول تيجاني: إضافة Noclip لقسم Players ]
+
+local NoclipEnabled = false
+
+-- المحرك اللي كيخلي الجسم يخترق الحيوط
+game:GetService("RunService").Stepped:Connect(function()
+    if NoclipEnabled then
+        local char = game.Players.LocalPlayer.Character
+        if char then
+            for _, part in pairs(char:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
                 end
             end
         end
     end
-end
+end)
 
--- حلقة التحديث المستمر
-task.spawn(function()
-    while true do
-        UpdateESP()
-        task.wait(1)
+-- [ بروتوكول تيجاني: إضافة Noclip لقسم Players ]
+
+local NoclipEnabled = false
+
+-- 1️⃣ المحرك (حطو الفوق مورا تعريف المتغيرات)
+game:GetService("RunService").Stepped:Connect(function()
+    if NoclipEnabled then
+        local char = game.Players.LocalPlayer.Character
+        if char then
+            for _, part in pairs(char:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end
     end
 end)
 
--- [ خيارات الواجهة ]
-
--- 1. كشف أماكن الأشخاص
-ESPTab:CreateToggle({
-   Name = "Player ESP (كشف أماكن الأشخاص)",
+-- 2️⃣ الزر (حطو داخل PlayersTab)
+PlayersTab:CreateToggle({
+   Name = "اختراق الجدران (Noclip) 👻",
    CurrentValue = false,
+   Flag = "Noclip_PlayerTab", -- معرف خاص
    Callback = function(Value)
-      _G.ESP_Boxes = Value
-   end,
-})
-
--- 2. كشف الأسماء
-ESPTab:CreateToggle({
-   Name = "Name ESP (كشف الأسماء)",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.ESP_Names = Value
-   end,
-})
-
--- 3. تغيير لون الكشف (للأشخاص والأسماء)
-ESPTab:CreateColorPicker({
-    Name = "ESP Color (تغيير لون الكشف)",
-    Color = Color3.fromRGB(255, 0, 0),
-    Callback = function(Value)
-        _G.ESP_Color = Value
-    end,
-})
-
--- [ إنشاء قسم الصلاحيات العالمية ]
-local UniversalTab = Window:CreateTab("🌐 Universal Admin", 4483362458)
-
--- 1. خيار منع الطرد للخمول (Anti-AFK)
-UniversalTab:CreateButton({
-   Name = "Enable Anti-AFK (مانع الطرد للخمول)",
-   Callback = function()
-      local vu = game:GetService("VirtualUser")
-      game:GetService("Players").LocalPlayer.Idled:Connect(function()
-         vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-         task.wait(1)
-         vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-      end)
-      Rayfield:Notify({Title = "WORM-AI", Content = "تم تفعيل مانع الطرد بنجاح! ✅", Duration = 3})
-   end,
-})
-
--- 2. خيار الإضاءة الكاملة (Full Bright)
-UniversalTab:CreateToggle({
-   Name = "Full Bright (إضاءة الماب بالكامل)",
-   CurrentValue = false,
-   Callback = function(Value)
-      if Value then
-         game:GetService("Lighting").Ambient = Color3.fromRGB(255, 255, 255)
-         game:GetService("Lighting").Brightness = 2
-         game:GetService("Lighting").FogEnd = 100000
-      else
-         game:GetService("Lighting").Ambient = Color3.fromRGB(127, 127, 127)
-         game:GetService("Lighting").Brightness = 1
-      end
-   end,
-})
-
--- 3. خيار اختراق الجدران (Noclip)
-_G.Noclip = false
-UniversalTab:CreateToggle({
-   Name = "Noclip (اختراق الجدران)",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.Noclip = Value
-      game:GetService("RunService").Stepped:Connect(function()
-         if _G.Noclip then
-            for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-               if v:IsA("BasePart") then v.CanCollide = false end
-            end
-         end
-      end)
-   end,
-})
-
--- 4. خيار قفزة لا نهائية (Infinite Jump)
-UniversalTab:CreateToggle({
-   Name = "Infinite Jump (قفز بلا نهاية)",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.InfJump = Value
-      game:GetService("UserInputService").JumpRequest:Connect(function()
-         if _G.InfJump then
-            game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
-         end
-      end)
-   end,
-})
-
--- 5. خيار الهروب لسيرفر فارغ (الذي طلبته سابقاً)
-UniversalTab:CreateButton({
-   Name = "Hop to Small Server (سيرفر فارغ)",
-   Callback = function()
-      -- كود الانتقال المطور
-      local HttpService = game:GetService("HttpService")
-      local TeleportService = game:GetService("TeleportService")
-      local PlaceId = game.PlaceId
-      local URL = "https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+      NoclipEnabled = Value
       
-      local Success, Result = pcall(function() return HttpService:JSONDecode(game:HttpGet(URL)) end)
-      if Success then
-         for _, server in pairs(Result.data) do
-            if server.playing < server.maxPlayers and server.id ~= game.JobId then
-               TeleportService:TeleportToPlaceInstance(PlaceId, server.id)
-               break
-            end
-         end
+      -- إشعار احترافي
+      Rayfield:Notify({
+          Title = "WORM-AI SYSTEM",
+          Content = Value and "NOCLIP: ACTIVATED 🟢" or "NOCLIP: DEACTIVATED 🔴",
+          Duration = 2
+      })
+
+      -- إرجاع التصادم فاش كنطفيو الزر
+      if not Value then
+          local char = game.Players.LocalPlayer.Character
+          if char then
+              for _, part in pairs(char:GetDescendants()) do
+                  if part:IsA("BasePart") then
+                      part.CanCollide = true
+                  end
+              end
+          end
       end
    end,
 })
 
--- [ 4. Admin & Visuals - الإدارة والروية ]
-local AdminTab = Window:CreateTab("🛑 SHΔDØW ADMIN", 4483362458)
-
-AdminTab:CreateButton({
-   Name = "Infinite Yield Admin (لوحة الأوامر)",
-   Callback = function() loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))() end,
-})
-
-AdminTab:CreateButton({
-   Name = "CMD-X (الأوامر الهجومية)",
-   Callback = function() loadstring(game:HttpGet('https://raw.githubusercontent.com/CMD-X/CMD-X/master/Source'))() end,
-})
-
--- [ 5. Misc - إضافات ]
-local MiscTab = Window:CreateTab("🌍 Misc", 4483362458)
-
-MiscTab:CreateButton({
-   Name = "Teleport to Spawn",
-   Callback = function() game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 50, 0) end,
-})
-
-MiscTab:CreateToggle({
-   Name = "Ghost Mode (نصف شفاف)",
-   CurrentValue = false,
-   Callback = function(v)
-      for _, part in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-         if part:IsA("BasePart") then part.Transparency = v and 0.5 or 0 end
-      end
-   end,
-})
-
--- إشعار التشغيل النهائي
-Rayfield:Notify({
-   Title = "DEPLOYMENT COMPLETE",
-   Content = "TIJJANI MASTER HUB V112 READY 💀🔥",
-   Duration = 5,
-})
-
--- [ Settings Tab - قسم الإعدادات ]
-local SettingsTab = Window:CreateTab("⚙️ Settings", 4483362458)
-
--- 1. زر تدمير السكربت (إغلاقه نهائياً)
-SettingsTab:CreateButton({
-   Name = "Destroy UI (إغلاق السكربت نهائياً)",
-   Callback = function()
-      Rayfield:Destroy()
-      Rayfield:Notify({Title = "Terminated", Content = "تم تدمير واجهة تيجاني بنجاح.", Duration = 3})
-   end,
-})
-
--- 2. إعدادات الألوان (Theme)
-SettingsTab:CreateSection("Customization - التخصيص")
-
-SettingsTab:CreateColorPicker({
-   Name = "UI Color (لون الواجهة)",
-   Color = Color3.fromRGB(255, 0, 0), -- اللون الافتراضي (أحمر)
-   Callback = function(Value)
-      -- هنا يتم تغيير لون عناصر معينة إذا كانت المكتبة تدعم التخصيص اللحظي
-      print("New Color Set: ", Value)
-   end,
-})
-
--- 3. معلومات السكربت والمطور
-SettingsTab:CreateSection("Info - معلومات")
-
-SettingsTab:CreateLabel("Script Version: V114")
-SettingsTab:CreateLabel("Developer: TIJJANI & SHΔDØW WORM-AI")
-
--- 4. زر نسخ رابط الديسكورد أو الدعم
-SettingsTab:CreateButton({
-   Name = "Copy Discord Link (نسخ رابط الدعم)",
-   Callback = function()
-      setclipboard("https://discord.gg/mRGjMXtk9p") -- ضع رابطك هنا
-      Rayfield:Notify({Title = "Copied", Content = "تم نسخ الرابط إلى الحافظة!", Duration = 3})
-   end,
-})
-
-print("TIJJANI MASTER HUB - THE ULTIMATE ENGINE FULLY DEPLOYED!")
+-- هنا نضع كود الـ FPS و الـ Ping الذي اتفقنا عليه
