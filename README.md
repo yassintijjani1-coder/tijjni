@@ -32,6 +32,18 @@ MainTab:CreateButton({
    end,
 })
 
+-- 2. زر الإغلاق النهائي (Destroy Button)
+SettingsTab:CreateButton({
+    Name = "تدمير السكربت نهائياً ❌",
+    Callback = function()
+        -- تنظيف كاع الواجهات
+        Rayfield:Destroy()
+        
+        -- إشعار أخير في الكونسول
+        print("TIJJANI MASTER HUB: TERMINATED 🔴")
+    end,
+})
+
 -- [ قسم الإعدادات - سنضع فيه ما صنعناه سابقاً ]
 SettingsTab:CreateSection("مراقب الأداء")
 
@@ -552,5 +564,7 @@ PlayersTab:CreateToggle({
       end
    end,
 })
+
+
 
 -- هنا نضع كود الـ FPS و الـ Ping الذي اتفقنا عليه
