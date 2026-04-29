@@ -565,6 +565,46 @@ PlayersTab:CreateToggle({
    end,
 })
 
+-- TIJJANI MASTER HUB - Infinite Jump Platform Script
+MainTab:CreateToggle({
+   Name = "Infinite Jump Platforms 🚀",
+   CurrentValue = false,
+   Flag = "InfJumpPlatform",
+   Callback = function(Value)
+      _G.InfJumpMode = Value
+   end,
+})
 
+local lastPlatform = nil -- هادا باش نعقلوا على المربع القديم ونمسحوه
+
+-- مراقبة القفز
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if _G.InfJumpMode then
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            
+            -- 1. مسح المربع القديم إذا كان موجوداً
+            if lastPlatform then
+                lastPlatform:Destroy()
+            end
+            
+            -- 2. إنشاء مربع جديد تحت رجل اللاعب بالضبط
+            local platform = Instance.new("Part")
+            platform.Size = Vector3.new(6, 1, 6) -- حجم المربع
+            platform.Position = character.HumanoidRootPart.Position + Vector3.new(0, -3.5, 0) -- تحت اللاعب
+            platform.Anchored = true
+            platform.BrickColor = BrickColor.new("Bright green") -- لون القفزة الجديدة
+            platform.Material = Enum.Material.Neon
+            platform.Parent = game.Workspace
+            
+            -- 3. حفظ المربع الحالي ليصبح هو "القديم" في القفزة الجاية
+            lastPlatform = platform
+            
+            -- 4. برمجة المربع باش يختفي بوحدو بعد 2 ثواني كإجراء احتياطي
+            game:GetService("Debris"):AddItem(platform, 2)
+        end
+    end
+end)
 
 -- هنا نضع كود الـ FPS و الـ Ping الذي اتفقنا عليه
