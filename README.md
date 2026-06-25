@@ -607,4 +607,57 @@ game:GetService("UserInputService").JumpRequest:Connect(function()
     end
 end)
 
+-- [ بروتوكول تيجاني: God Mode / Anti-Damage ]
+
+local GodModeEnabled = false
+
+-- نظام حماية ضد الضرر
+game:GetService("RunService").Stepped:Connect(function()
+    if GodModeEnabled then
+        pcall(function()
+            local char = game.Players.LocalPlayer.Character
+            if char and char:FindFirstChild("Humanoid") then
+                local hum = char.Humanoid
+                -- إعادة الصحة للماكس كل ستپ
+                hum.Health = hum.MaxHealth
+                
+                -- منع الحرق/الغرق/السقوط (اختياري)
+                if char:FindFirstChild("HumanoidRootPart") then
+                    local root = char.HumanoidRootPart
+                    -- منع الضرر الناتج عن السرعة (FallDamage)
+                    if root.Velocity.Y < -50 then
+                        root.Velocity = Vector3.new(root.Velocity.X, -50, root.Velocity.Z)
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+-- زر التفعيل (تم نقله إلى قسم MainTab)
+MainTab:CreateToggle({
+   Name = "God Mode (الخلود) 🛡️",
+   CurrentValue = false,
+   Flag = "GodModeToggle",
+   Callback = function(Value)
+      GodModeEnabled = Value
+      
+      Rayfield:Notify({
+          Title = "WORM-AI SYSTEM",
+          Content = Value and "GOD MODE: ACTIVATED ♾️🛡️" or "GOD MODE: DEACTIVATED 🔴",
+          Duration = 2
+      })
+      
+      -- إذا طفينا، نرجع الصحة طبيعية (اختياري)
+      if not Value then
+          pcall(function()
+              local char = game.Players.LocalPlayer.Character
+              if char and char:FindFirstChild("Humanoid") then
+                  char.Humanoid.Health = char.Humanoid.MaxHealth
+              end
+          end)
+      end
+   end,
+})
+
 -- هنا نضع كود الـ FPS و الـ Ping الذي اتفقنا عليه
